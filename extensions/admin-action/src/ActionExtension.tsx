@@ -75,12 +75,18 @@ function App() {
 
     console.log('Saving settings:', config);
 
+    // Todo: need to fix URL to Secure (HTTPS)
     try {
-      const res = await fetch('/api/save-settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
-      });
+
+      const res = await fetch('http://127.0.0.1:4040/api/get-product-title', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    productId: data.selected[0].id,
+  }),
+});
 
       if (res.ok) {
         console.log('Settings saved');

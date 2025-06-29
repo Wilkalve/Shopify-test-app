@@ -14,6 +14,13 @@ require('dotenv').config();
 
 // Import routes
 const uploadRoutes = require('./routes/upload');
+const saveSettingsRoutes = require('./routes/save-settings');
+const productTitleRoutes = require('./routes/get-product-title');
+
+
+
+
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,6 +36,8 @@ app.use(express.urlencoded({ extended: true }));
 // aduy0 - Serve static files
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
+app.use('/api/save-settings', saveSettingsRoutes);
+app.use('/api/get-product-title', productTitleRoutes);
 
 // aduy0 - API Routes
 app.use('/api', uploadRoutes);

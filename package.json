@@ -18,6 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "@shopify/shopify_function": "~2.0.0",
+    "@shopify/shopify-api": "^11.13.0",
     "@shopify/ui-extensions": "2025.4.0",
     "@shopify/ui-extensions-react": "2025.4.0",
     "better-sqlite3": "^11.10.0",
@@ -34,6 +35,8 @@
   "devDependencies": {
     "@types/multer": "^1.4.13",
     "@types/node": "^20.8.0",
+    "@types/send": "^0.17.5",
+    "@types/serve-static": "^1.15.8",
     "@vitejs/plugin-react": "^4.5.2",
     "nodemon": "^3.0.1",
     "typescript": "^5.2.2",
