@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import {
   reactExtension,
@@ -12,8 +11,6 @@ import {
   Checkbox,
 } from '@shopify/ui-extensions-react/admin';
 
-
-// The target used here must match the target used in the extension's toml file (./shopify.extension.toml)
 const TARGET = 'admin.product-details.action.render';
 
 export default reactExtension(TARGET, () => <App />);
@@ -21,18 +18,17 @@ export default reactExtension(TARGET, () => <App />);
 function App() {
   const { i18n, close, data } = useApi(TARGET);
 
-  // The useApi hook provides access to several useful APIs like i18n, close, and data.
-
   const [productTitle, setProductTitle] = useState('');
   const [isAppEnabled, setIsAppEnabled] = useState(true);
   const [energyCost, setEnergyCost] = useState('0.15');
   const [filamentType, setFilamentType] = useState('PLA');
   const [color, setColor] = useState('');
-  const [size, setSize] = useState('');
+  const [wallThickness, setWallThickness] = useState('');
+  const [infill, setInfill] = useState('');
+  const [scaleSize, setScaleSize] = useState('');
   const [autoEdit, setAutoEdit] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
 
-  // Use direct API calls to fetch data from Shopify.
-  // See https://shopify.dev/docs/api/admin-graphql for more information about Shopify's GraphQL API
   useEffect(() => {
     if (!data.selected || data.selected.length === 0) return;
 
@@ -60,8 +56,35 @@ function App() {
     })();
   }, [data.selected]);
 
+  useEffect(() => {
+    if (!wallThickness) {
+      setWallThickness(filamentType === 'PLA' ? '1.2' : '1.6');
+    }
+    if (!infill) {
+      setInfill(filamentType === 'PLA' ? '15' : '30');
+    }
+  }, [filamentType]);
+
   const handleSave = async () => {
     if (!data.selected || !data.selected[0]?.id) return;
+
+    if (uploadedFile) {
+      const formData = new FormData();
+      formData.append('model', uploadedFile);
+      formData.append('productId', data.selected[0].id);
+
+      
+// TODO URL need to be change
+     const resUpload = await fetch('https://3d18-192-197-88-101.ngrok-free.app/api/upload-model', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!resUpload.ok) {
+        alert('Failed to upload 3D model');
+        return;
+      }
+    }
 
     const config = {
       productId: data.selected[0].id,
@@ -69,24 +92,21 @@ function App() {
       energyCost,
       filamentType,
       color,
-      size,
+      wallThickness,
+      infill,
+      scaleSize,
       autoEdit,
     };
 
     console.log('Saving settings:', config);
 
-    // Todo: need to fix URL to Secure (HTTPS)
+// TODO URL need to be change
     try {
-
-      const res = await fetch('http://127.0.0.1:4040/api/get-product-title', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    productId: data.selected[0].id,
-  }),
-});
+      const res = await fetch('https://3d18-192-197-88-101.ngrok-free.app/api/get-product-title', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: data.selected[0].id }),
+      });
 
       if (res.ok) {
         console.log('Settings saved');
@@ -101,7 +121,6 @@ function App() {
 
   const handleDownloadFiles = () => {
     console.log('Downloading 3D files for', productTitle);
-    // future: fetch download link based on product ID
   };
 
   if (!data.selected || data.selected.length === 0) {
@@ -115,11 +134,7 @@ function App() {
     >
       <BlockStack gap="loose">
         <Text level="3">3D Printing Config</Text>
-
-        <Text>
-          Editing product:{' '}
-          <Text fontWeight="bold">{productTitle}</Text>
-        </Text>
+        <Text>Editing product: <Text fontWeight="bold">{productTitle}</Text></Text>
 
         <Checkbox
           checked={isAppEnabled}
@@ -163,6 +178,37 @@ function App() {
         />
 
 
+        <Select
+          label="Wall Thickness (mm)"
+          value={wallThickness}
+          onChange={setWallThickness}
+          options={[
+            { label: '0.8', value: '0.8' },
+            { label: '1.2', value: '1.2' },
+            { label: '1.6', value: '1.6' },
+          ]}
+        />
+
+        <Select
+          label="Infill Level"
+          value={infill}
+          onChange={setInfill}
+          options={[
+            { label: 'Minimal (5%)', value: '5' },
+            { label: 'Light (15%)', value: '15' },
+            { label: 'Medium (30%)', value: '30' },
+            { label: 'High (60%)', value: '60' },
+            { label: 'Solid (100%)', value: '100' },
+          ]}
+        />
+
+        <TextField
+          label="Scale Size (%)"
+          type="number"
+          value={scaleSize}
+          onChange={setScaleSize}
+        />
+
         <Checkbox
           checked={autoEdit}
           onChange={setAutoEdit}
@@ -178,9 +224,7 @@ function App() {
             Download 3D Files
           </Button>
         </BlockStack>
-
       </BlockStack>
     </AdminAction>
   );
-
 }

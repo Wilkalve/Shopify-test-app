@@ -10,6 +10,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { body, validationResult } = require('express-validator');
+const db = require('../../db/setup');
 
 const router = express.Router();
 
@@ -56,6 +57,8 @@ const upload = multer({
 router.post('/upload', upload.single('3dFile'), [
   // middleware validation
   body('customerEmail').optional().isEmail().withMessage('Valid email required if provided'),
+  body('productId').notEmpty().withMessage('Product ID is required'),
+  body('shopDomain').notEmpty().withMessage('Shop domain is required'),
   body('fileName').notEmpty().withMessage('File name required'),
 ], (req, res) => {
   try {

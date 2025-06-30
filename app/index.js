@@ -5,21 +5,24 @@
  * @modified 2025-06-10
  * @description Main Express server with file upload capabilities
  */
-
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
-require('dotenv').config();
+const multer = require('multer');
+
+
+// Shopify API setup
+const { shopify } = require('./shopify'); 
+//const dbSetup = require('db/setup');
+
 
 // Import routes
 const uploadRoutes = require('./routes/upload');
 const saveSettingsRoutes = require('./routes/save-settings');
 const productTitleRoutes = require('./routes/get-product-title');
-
-
-
-
+const dbSetup = require('../db/setup');
 
 
 const app = express();
@@ -29,7 +32,18 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet({
   contentSecurityPolicy: false // Disable for development
 }));
-app.use(cors());
+
+// TODo:  : CORS header ‘Access-Control-Allow-Origin’ missing  
+
+// Access-Control-Allow-Origin header
+app.use(cors({
+  origin: 'https://3d18-192-197-88-101.ngrok-free.app',
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
+}));
+app.options('*', cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -44,7 +58,7 @@ app.use('/api', uploadRoutes);
 
 // aduy0 - Main customer interface route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 // aduy0 - API info endpoint

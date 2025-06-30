@@ -19,6 +19,7 @@
   "dependencies": {
     "@shopify/shopify_function": "~2.0.0",
     "@shopify/shopify-api": "^11.13.0",
+    "@shopify/shopify-app-session-storage-sqlite": "^4.0.18",
     "@shopify/ui-extensions": "2025.4.0",
     "@shopify/ui-extensions-react": "2025.4.0",
     "better-sqlite3": "^11.10.0",

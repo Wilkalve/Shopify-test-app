@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const db = require('./db/setup'); 
+const db = require('../../db/setup');
+
 
 router.post('/', (req, res) => {
   const {
@@ -8,7 +9,9 @@ router.post('/', (req, res) => {
     energyCost,
     filamentType,
     color,
-    size,
+    wallThickness,
+    infill,
+    scaleSize,
     autoEdit
   } = req.body;
 
@@ -23,15 +26,18 @@ router.post('/', (req, res) => {
         energy_cost,
         filament_type,
         color,
-        size,
+        wall_thickness,
+        infill,
+        scale_size,
         auto_edit
-      )
-      VALUES (?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(product_id) DO UPDATE SET
         energy_cost = excluded.energy_cost,
         filament_type = excluded.filament_type,
         color = excluded.color,
-        size = excluded.size,
+        wall_thickness = excluded.wall_thickness,
+        infill = excluded.infill,
+        scale_size = excluded.scale_size,
         auto_edit = excluded.auto_edit
     `);
 
@@ -40,7 +46,9 @@ router.post('/', (req, res) => {
       energyCost,
       filamentType,
       color,
-      size,
+      wallThickness,
+      infill,
+      scaleSize,
       autoEdit ? 1 : 0
     );
 
