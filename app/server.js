@@ -15,34 +15,51 @@ const multer = require('multer');
 
 // Shopify API setup
 const { shopify } = require('./shopify'); 
-//const dbSetup = require('db/setup');
+const dbSetup = require('../db/setup');
 
 
 // Import routes
 const uploadRoutes = require('./routes/upload');
 const saveSettingsRoutes = require('./routes/save-settings');
 const productTitleRoutes = require('./routes/get-product-title');
-const dbSetup = require('../db/setup');
 
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 // aduy0 - Security and middleware setup
 app.use(helmet({
   contentSecurityPolicy: false // Disable for development
 }));
 
-// TODo:  : CORS header ‘Access-Control-Allow-Origin’ missing  
-
 // Access-Control-Allow-Origin header
+// app.use(cors({
+//   origin: 'https://8de3-192-197-88-66.ngrok-free.app', 
+//   methods: ['GET', 'POST'],
+//   credentials: true
+// }));
+
+const allowedOrigins = [
+  'https://ae19-192-197-88-66.ngrok-free.app',      // backend ngrok tunnel
+  'https://806b-64-229-115-37.ngrok-free.app',      // frontend
+  'https://gal3d.myshopify.com',                   // Shopify store
+  'https://extensions.shopifycdn.com'              // where extensions are hosted in Admin
+];
+
 app.use(cors({
-  origin: 'https://3d18-192-197-88-101.ngrok-free.app',
-  credentials: true,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type']
+  origin: function (origin, callback) {
+    console.log('Incoming origin:', origin);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS blocked: ' + origin));
+    }
+  },
+  methods: ['GET', 'POST'],
+  credentials: true
 }));
-app.options('*', cors());
+
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

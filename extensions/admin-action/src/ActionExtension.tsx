@@ -16,7 +16,7 @@ const TARGET = 'admin.product-details.action.render';
 export default reactExtension(TARGET, () => <App />);
 
 function App() {
-  const { i18n, close, data } = useApi(TARGET);
+  const { close, data } = useApi(TARGET);
 
   const [productTitle, setProductTitle] = useState('');
   const [isAppEnabled, setIsAppEnabled] = useState(true);
@@ -29,33 +29,32 @@ function App() {
   const [autoEdit, setAutoEdit] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
 
+  // Fetch product info
   useEffect(() => {
-    if (!data.selected || data.selected.length === 0) return;
+    if (!data.selected?.length) return;
 
-    (async function getProductInfo() {
-      const getProductQuery = {
+    (async () => {
+      const query = {
         query: `query Product($id: ID!) {
-          product(id: $id) {
-            title
-          }
+          product(id: $id) { title }
         }`,
         variables: { id: data.selected[0].id },
       };
 
-      const res = await fetch('shopify:admin/api/graphql.json', {
-        method: 'POST',
-        body: JSON.stringify(getProductQuery),
-      });
-
-      if (res.ok) {
-        const productData = await res.json();
-        setProductTitle(productData.data.product.title);
-      } else {
-        console.error('Failed to get product title');
+      try {
+        const res = await fetch('shopify:admin/api/graphql.json', {
+          method: 'POST',
+          body: JSON.stringify(query),
+        });
+        const result = await res.json();
+        setProductTitle(result?.data?.product?.title || '');
+      } catch (err) {
+        console.error('GraphQL error:', err);
       }
     })();
   }, [data.selected]);
 
+  // Adjust defaults based on filament
   useEffect(() => {
     if (!wallThickness) {
       setWallThickness(filamentType === 'PLA' ? '1.2' : '1.6');
@@ -65,65 +64,74 @@ function App() {
     }
   }, [filamentType]);
 
+  // 💾 Save settings handler
   const handleSave = async () => {
-    if (!data.selected || !data.selected[0]?.id) return;
+  if (!data.selected?.[0]?.id) return;
 
-    if (uploadedFile) {
-      const formData = new FormData();
-      formData.append('model', uploadedFile);
-      formData.append('productId', data.selected[0].id);
+  const productId = data.selected[0].id;
 
-      
-// TODO URL need to be change
-     const resUpload = await fetch('https://3d18-192-197-88-101.ngrok-free.app/api/upload-model', {
-        method: 'POST',
-        body: formData,
-      });
+  // Validate input
+  if (
+    isNaN(parseFloat(energyCost)) ||
+    isNaN(parseFloat(wallThickness)) ||
+    isNaN(parseFloat(infill)) ||
+    isNaN(parseFloat(scaleSize))
+  ) {
+    alert('Please fill in all numeric fields with valid numbers.');
+    return;
+  }
 
-      if (!resUpload.ok) {
-        alert('Failed to upload 3D model');
-        return;
-      }
+  // Upload file if present
+  if (uploadedFile) {
+    const formData = new FormData();
+    formData.append('model', uploadedFile);
+    formData.append('productId', productId);
+
+    const uploadRes = await fetch('https://your-ngrok-url.ngrok-free.app/api/upload-model', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!uploadRes.ok) {
+      alert('Failed to upload 3D model');
+      return;
+    }
+  }
+
+  // Send configuration to backend
+  try {
+    const res = await fetch('https://ae19-192-197-88-66.ngrok-free.app/api/save-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        productId,
+        energyCost: parseFloat(energyCost),
+        filamentType,
+        color,
+        wallThickness: parseFloat(wallThickness),
+        infill: parseFloat(infill),
+        scaleSize: parseFloat(scaleSize),
+        autoEdit
+      }),
+    });
+
+    if (!res.ok) {
+      const msg = await res.text();
+      console.error('Backend error:', msg);
+      alert('Failed to save settings');
+      return;
     }
 
-    const config = {
-      productId: data.selected[0].id,
-      isAppEnabled,
-      energyCost,
-      filamentType,
-      color,
-      wallThickness,
-      infill,
-      scaleSize,
-      autoEdit,
-    };
+    console.log('Settings saved');
+    close();
+  } catch (err) {
+    console.error('Network error:', err);
+    alert('There was a problem saving your settings.');
+  }
+};
 
-    console.log('Saving settings:', config);
 
-// TODO URL need to be change
-    try {
-      const res = await fetch('https://3d18-192-197-88-101.ngrok-free.app/api/get-product-title', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: data.selected[0].id }),
-      });
-
-      if (res.ok) {
-        console.log('Settings saved');
-        close();
-      } else {
-        console.error('Failed to save settings');
-      }
-    } catch (err) {
-      console.error('Error saving settings:', err);
-    }
-  };
-
-  const handleDownloadFiles = () => {
-    console.log('Downloading 3D files for', productTitle);
-  };
-
-  if (!data.selected || data.selected.length === 0) {
+  if (!data.selected?.length) {
     return <Text>Loading product...</Text>;
   }
 
@@ -177,7 +185,6 @@ function App() {
           ]}
         />
 
-
         <Select
           label="Wall Thickness (mm)"
           value={wallThickness}
@@ -220,7 +227,7 @@ function App() {
             View Setup Guide
           </Button>
 
-          <Button kind="secondary" onPress={handleDownloadFiles}>
+          <Button kind="secondary" onPress={() => console.log('Downloading 3D files for', productTitle)}>
             Download 3D Files
           </Button>
         </BlockStack>
