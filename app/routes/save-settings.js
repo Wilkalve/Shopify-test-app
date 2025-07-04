@@ -68,7 +68,7 @@ router.post('/', (req, res) => {
       autoEdit ? 1 : 0
     );
 
-    // 🔍 Confirm what was saved
+    //Confirm what was saved
     const check = db.prepare('SELECT * FROM product_settings WHERE product_id = ?').get(productId);
     console.log('Saved row:', check);
 
