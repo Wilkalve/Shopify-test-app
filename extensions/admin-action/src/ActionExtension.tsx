@@ -29,16 +29,34 @@ function App() {
   const [autoEdit, setAutoEdit] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
 
-  // Fetch product info
+  // Fetch product title and 3D model
   useEffect(() => {
     if (!data.selected?.length) return;
 
-    (async () => {
+    const productId = data.selected[0].id;
+
+    const fetchProductDetails = async () => {
       const query = {
-        query: `query Product($id: ID!) {
-          product(id: $id) { title }
+        query: `query GetProductWithMedia($id: ID!) {
+          product(id: $id) {
+            title
+            media(first: 10) {
+              edges {
+                node {
+                  ... on Model3d {
+                    id
+                    sources {
+                      url
+                      format
+                      mimeType
+                    }
+                  }
+                }
+              }
+            }
+          }
         }`,
-        variables: { id: data.selected[0].id },
+        variables: { id: productId },
       };
 
       try {
@@ -47,11 +65,26 @@ function App() {
           body: JSON.stringify(query),
         });
         const result = await res.json();
-        setProductTitle(result?.data?.product?.title || '');
+        const product = result?.data?.product;
+        setProductTitle(product?.title || '');
+
+        const model = product?.media?.edges?.find(
+          (edge) => edge.node?.sources?.[0]?.url
+        )?.node;
+
+        if (model) {
+          setUploadedFile({
+            name: model.sources[0].format,
+            url: model.sources[0].url,
+            fileUploadId: model.id,
+          });
+        }
       } catch (err) {
         console.error('GraphQL error:', err);
       }
-    })();
+    };
+
+    fetchProductDetails();
   }, [data.selected]);
 
   // Adjust defaults based on filament
@@ -64,72 +97,52 @@ function App() {
     }
   }, [filamentType]);
 
-  // 💾 Save settings handler
+  // Save settings handler
   const handleSave = async () => {
-  if (!data.selected?.[0]?.id) return;
+    if (!data.selected?.[0]?.id) return;
 
-  const productId = data.selected[0].id;
+    const productId = data.selected[0].id;
+    const fileUploadId = uploadedFile?.fileUploadId || null;
 
-  // Validate input
-  if (
-    isNaN(parseFloat(energyCost)) ||
-    isNaN(parseFloat(wallThickness)) ||
-    isNaN(parseFloat(infill)) ||
-    isNaN(parseFloat(scaleSize))
-  ) {
-    alert('Please fill in all numeric fields with valid numbers.');
-    return;
-  }
-
-  // Upload file if present
-  if (uploadedFile) {
-    const formData = new FormData();
-    formData.append('model', uploadedFile);
-    formData.append('productId', productId);
-
-    const uploadRes = await fetch('https://your-ngrok-url.ngrok-free.app/api/upload-model', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!uploadRes.ok) {
-      alert('Failed to upload 3D model');
-      return;
-    }
-  }
-
-  // Send configuration to backend
-  try {
-    const res = await fetch('https://ae19-192-197-88-66.ngrok-free.app/api/save-settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        productId,
-        energyCost: parseFloat(energyCost),
-        filamentType,
-        color,
-        wallThickness: parseFloat(wallThickness),
-        infill: parseFloat(infill),
-        scaleSize: parseFloat(scaleSize),
-        autoEdit
-      }),
-    });
-
-    if (!res.ok) {
-      const msg = await res.text();
-      console.error('Backend error:', msg);
-      alert('Failed to save settings');
+    if (
+      isNaN(parseFloat(energyCost)) ||
+      isNaN(parseFloat(wallThickness)) ||
+      isNaN(parseFloat(infill)) ||
+      isNaN(parseFloat(scaleSize))
+    ) {
+      console.error('Validation error: Please fill in all numeric fields with valid numbers.');
       return;
     }
 
-    console.log('Settings saved');
-    close();
-  } catch (err) {
-    console.error('Network error:', err);
-    alert('There was a problem saving your settings.');
-  }
-};
+    try {
+      const res = await fetch('https://46a8-64-229-115-37.ngrok-free.app/api/save-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId,
+          fileUploadId,
+          energyCost: parseFloat(energyCost),
+          filamentType,
+          color,
+          wallThickness: parseFloat(wallThickness),
+          infill: parseFloat(infill),
+          scaleSize: parseFloat(scaleSize),
+          autoEdit
+        }),
+      });
 
+      if (!res.ok) {
+        const msg = await res.text();
+        console.error('Backend error:', msg);
+        return;
+      }
+
+      console.log('Settings saved successfully');
+      close();
+    } catch (err) {
+      console.error('Network error while saving settings:', err);
+    }
+  };
 
   if (!data.selected?.length) {
     return <Text>Loading product...</Text>;
@@ -221,6 +234,14 @@ function App() {
           onChange={setAutoEdit}
           label="Auto-edit product page with 3D options"
         />
+
+        {uploadedFile ? (
+          <Text appearance="subdued">
+            Linked 3D model: <a href={uploadedFile.url} target="_blank" rel="noopener noreferrer">{uploadedFile.name}</a>
+          </Text>
+        ) : (
+          <Text appearance="subdued">No 3D model linked to this product yet.</Text>
+        )}
 
         <BlockStack gap="base">
           <Button kind="secondary" onPress={() => console.log('Show setup guide')}>

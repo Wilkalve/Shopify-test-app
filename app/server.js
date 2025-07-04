@@ -33,12 +33,6 @@ app.use(helmet({
 }));
 
 // Access-Control-Allow-Origin header
-// app.use(cors({
-//   origin: 'https://8de3-192-197-88-66.ngrok-free.app', 
-//   methods: ['GET', 'POST'],
-//   credentials: true
-// }));
-
 const allowedOrigins = [
   'https://ae19-192-197-88-66.ngrok-free.app',      // backend ngrok tunnel
   'https://806b-64-229-115-37.ngrok-free.app',      // frontend
