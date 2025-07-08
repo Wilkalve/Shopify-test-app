@@ -4,7 +4,7 @@
 name = "Novaprint 3D Printing"
 client_id = "7631acce31aefccf312387f3d5ab7286"
 handle = "novaprint-3d-printing"
-application_url = "https://integrated-organized-cal-gregory.trycloudflare.com"
+application_url = "https://adsl-approx-female-conditioning.trycloudflare.com"
 embedded = true
 
 [build]
@@ -27,7 +27,7 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://integrated-organized-cal-gregory.trycloudflare.com/auth/callback", "https://integrated-organized-cal-gregory.trycloudflare.com/auth/shopify/callback", "https://integrated-organized-cal-gregory.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://adsl-approx-female-conditioning.trycloudflare.com/auth/callback", "https://adsl-approx-female-conditioning.trycloudflare.com/auth/shopify/callback", "https://adsl-approx-female-conditioning.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
