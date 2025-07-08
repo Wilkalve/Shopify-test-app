@@ -1,0 +1,9 @@
+api_version = "2025-04"
+[[extensions]]
+name = "NovaPrint Admin"
+handle = "admin-action"
+type = "ui_extension"
+
+[[extensions.targeting]]
+module = "./src/WelcomePage.jsx"
+target = "admin.app.page"
