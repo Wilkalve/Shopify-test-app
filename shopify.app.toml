@@ -2,9 +2,9 @@
 
 
 name = "Novaprint 3D Printing"
-client_id = "7631acce31aefccf312387f3d5ab7286"
+client_id = "47c3becbd20d6fb0c7387c1c11886854"
 handle = "novaprint-3d-printing"
-application_url = "https://adsl-approx-female-conditioning.trycloudflare.com"
+application_url = "https://essence-beats-tsunami-headset.trycloudflare.com"
 embedded = true
 
 [build]
@@ -27,7 +27,7 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://adsl-approx-female-conditioning.trycloudflare.com/auth/callback", "https://adsl-approx-female-conditioning.trycloudflare.com/auth/shopify/callback", "https://adsl-approx-female-conditioning.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://essence-beats-tsunami-headset.trycloudflare.com/auth/callback", "https://essence-beats-tsunami-headset.trycloudflare.com/auth/shopify/callback", "https://essence-beats-tsunami-headset.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
