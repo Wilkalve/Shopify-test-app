@@ -5,7 +5,7 @@ export default function AppLayout() {
     <div style={{ display: "flex", minHeight: "100vh" }}>
       {/* Sidebar Navigation */}
       <nav style={{
-        width: "220px",
+        width: "221px",
         background: "#f0f0f0",
         padding: "2rem 1rem",
         borderRight: "1px solid #ddd"
