@@ -66,7 +66,7 @@ export default function WelcomePage() {
           </ul>
 
           <Link
-            to="/fileUpload"
+            to="/StorefrontFilePage"
             style={{
               display: 'inline-block',
               padding: '14px 30px',

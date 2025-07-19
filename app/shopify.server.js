@@ -27,9 +27,20 @@ const shopify = shopifyApp({
 
 export default shopify;
 export const apiVersion = ApiVersion.January25;
-export const addDocumentResponseHeaders = shopify.addDocumentResponseHeaders;
+//export const addDocumentResponseHeaders = shopify.addDocumentResponseHeaders;
 export const authenticate = shopify.authenticate;
 export const unauthenticated = shopify.unauthenticated;
 export const login = shopify.login;
 export const registerWebhooks = shopify.registerWebhooks;
 export const sessionStorage = shopify.sessionStorage;
+export function addDocumentResponseHeaders(request, responseHeaders) {
+
+
+  responseHeaders.delete("X-Frame-Options");
+
+  // Explicitly allow Shopify to embed your app
+  responseHeaders.set(
+    "Content-Security-Policy",
+    "frame-ancestors 'self' https://*.myshopify.com https://admin.shopify.com"
+  );
+}

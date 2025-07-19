@@ -1,15 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-
-
-
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+
 
 export default function StorefrontViewer({ modelUrl, onLoad }) {
   const mountRef = useRef();

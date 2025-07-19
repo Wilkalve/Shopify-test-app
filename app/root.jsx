@@ -34,7 +34,7 @@ export default function App() {
               <h2 style={{ fontSize: "1rem", marginBottom: "1.5rem" }}>Menu</h2>
               <ul style={{ listStyle: "none", padding: 0 }}>
                 <li><Link to="/" style={linkStyle}>Welcome</Link></li>
-                <li><Link to="/fileUpload" style={linkStyle}>Setup</Link></li>
+                <li><Link to="/StorefrontFileUpload" style={linkStyle}>Setup</Link></li>
                 <li><Link to="/view-order" style={linkStyle}>View Orders</Link></li>
                 <li><Link to="/help" style={linkStyle}>Help</Link></li>
               </ul>
