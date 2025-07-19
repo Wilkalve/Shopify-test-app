@@ -1,0 +1,27 @@
+{% render 'model-upload' %}
+{% schema %}
+{
+  "name": "3D Model Upload",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "model_label",
+      "label": "Model Label",
+      "default": "Upload your 3D model"
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label Text Color",
+      "default": "#333333"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_preview",
+      "label": "Show Preview",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

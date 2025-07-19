@@ -1,138 +1,97 @@
-import React, { useState, useRef, useContext } from 'react';
-import { Link } from '@remix-run/react';
-import { ModelContext } from '../ModelContext'; // adjust path as needed
+import React, { useState, useRef } from 'react';
 
-export default function FileUpload() {
-  const { setFileData, setFileType } = useContext(ModelContext);
+export default function StorefrontFileUpload({ label = "Upload 3D Model", onSuccess }) {
   const [fileName, setFileName] = useState('');
   const [error, setError] = useState('');
-  const [isUploaded, setIsUploaded] = useState(false);
+  const [success, setSuccess] = useState('');
   const fileInputRef = useRef();
 
-  const handleFile = (file) => {
-    const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
-    const allowedExtensions = ['.stl', '.obj', '.3mf', '.glb', '.gltf', '.ply', '.fbx'];
+  const allowedExtensions = ['.stl', '.obj', '.3mf', '.glb', '.gltf', '.ply', '.fbx'];
 
+  const handleUpload = async (file) => {
+    const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
     if (!allowedExtensions.includes(ext)) {
-      setError('Unsupported file type. Please upload a .stl, .obj, .3mf, .glb, .gltf, .ply, or .fbx file.');
-      setFileName('');
-      setIsUploaded(false);
+      setError('Unsupported format');
+      setSuccess('');
       return;
     }
 
     setFileName(file.name);
     setError('');
-    setIsUploaded(true);
+    setSuccess('');
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setFileData(reader.result);
-      setFileType(ext);
-    };
-    reader.readAsArrayBuffer(file);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/storefront/upload-proxy', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error('Upload failed');
+
+      const result = await res.json();
+
+      const cleanFileName = file.name.replace(/[^a-z0-9.\-_]/gi, '_');
+      const fileUrl = `/uploads/${cleanFileName}`;
+
+      setSuccess(`✅ Uploaded: ${file.name}`);
+      onSuccess?.(fileUrl); // 🔥 Notify parent component
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError('⚠️ Upload failed');
+    }
+  };
+
+  const handleBrowse = (e) => {
+    const file = e.target.files[0];
+    if (file) handleUpload(file);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  };
-
-  const handleBrowse = (e) => {
-    const file = e.target.files[0];
-    if (file) handleFile(file);
-  };
-
-  const styles = {
-    page: {
-      fontFamily: 'Inter, Segoe UI, sans-serif',
-      padding: '60px',
-      maxWidth: '700px',
-      margin: 'auto',
-      textAlign: 'center',
-      backgroundColor: '#f5f6fa',
-      borderRadius: '12px',
-      boxShadow: '0 12px 30px rgba(0, 0, 0, 0.08)',
-    },
-    subtext: {
-      color: '#666',
-      fontSize: '1.1rem',
-      marginBottom: '20px',
-    },
-    dropZone: {
-      padding: '40px',
-      border: '2px dashed #9c27b0',
-      borderRadius: '12px',
-      backgroundColor: '#fff',
-      cursor: 'pointer',
-      marginBottom: '20px',
-    },
-    icon: {
-      fontSize: '40px',
-      marginBottom: '10px',
-    },
-    hiddenInput: {
-      display: 'none',
-    },
-    success: {
-      color: '#28a745',
-      marginTop: '10px',
-    },
-    error: {
-      color: '#d32f2f',
-      marginTop: '10px',
-    },
+    if (file) handleUpload(file);
   };
 
   return (
-    <div style={styles.page}>
-      <h2>3D Model Upload</h2>
-      <p style={styles.subtext}>
-        Upload a 3D file or drop it here to preview your model.
-      </p>
+    <div style={{
+      maxWidth: '500px',
+      margin: '20px auto',
+      padding: '30px',
+      textAlign: 'center',
+      border: '2px dashed #9c27b0',
+      borderRadius: '10px',
+      backgroundColor: '#f9f9f9',
+    }}>
+      <h3>{label}</h3>
+      <p>Drag & drop a 3D file or click to upload</p>
 
       <div
-        style={styles.dropZone}
+        onClick={() => fileInputRef.current.click()}
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
-        onClick={() => fileInputRef.current.click()}
-        role="button"
-        aria-label="Drop or click to upload"
+        style={{
+          padding: '40px',
+          backgroundColor: '#fff',
+          borderRadius: '10px',
+          cursor: 'pointer',
+        }}
       >
-        <div style={styles.icon}>📤</div>
-        <p>Drop your file here or click to browse</p>
+        <div style={{ fontSize: '40px' }}>📤</div>
+        <p>{fileName ? `Selected: ${fileName}` : 'Click or drop to upload'}</p>
         <input
-          type="file"
           ref={fileInputRef}
-          onChange={handleBrowse}
-          style={styles.hiddenInput}
+          type="file"
           accept=".stl,.obj,.3mf,.glb,.gltf,.ply,.fbx"
+          onChange={handleBrowse}
+          style={{ display: 'none' }}
         />
       </div>
 
-      {fileName && <p style={styles.success}>✅ Uploaded: {fileName}</p>}
-      {error && <p style={styles.error}>⚠️ {error}</p>}
-
-      {isUploaded && (
-        <Link to="/modelViewer">
-          <button
-            style={{
-              marginTop: '20px',
-              padding: '12px 24px',
-              backgroundColor: '#9c27b0',
-              color: 'white',
-              fontSize: '16px',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-            }}
-            aria-label="Preview uploaded 3D model"
-          >
-            Preview 3D Model
-          </button>
-        </Link>
-      )}
+      {error && <p style={{ color: '#d32f2f' }}>{error}</p>}
+      {success && <p style={{ color: '#28a745' }}>{success}</p>}
     </div>
   );
 }

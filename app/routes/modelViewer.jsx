@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
@@ -7,15 +7,17 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { Link } from '@remix-run/react';
-import { ModelContext } from '../ModelContext'; 
 
-export default function ModelViewer() {
+export default function StorefrontViewer({ modelUrl }) {
   const mountRef = useRef();
-  const { fileData, fileType } = useContext(ModelContext);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!fileData || !fileType || !mountRef.current) return;
+    if (!modelUrl || !mountRef.current) return;
+
+    let renderer;
+    let model;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf4f6f9);
@@ -25,9 +27,8 @@ export default function ModelViewer() {
 
     const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
     camera.position.set(0, 0, 10);
-    camera.lookAt(0, 0, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
     renderer.shadowMap.enabled = true;
     mountRef.current.innerHTML = '';
@@ -35,89 +36,74 @@ export default function ModelViewer() {
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.1;
-    controls.update();
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(10, 10, 10);
-    scene.add(ambientLight, directionalLight);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-    const axesHelper = new THREE.AxesHelper(5);
-    const gridHelper = new THREE.GridHelper(20, 40);
-    scene.add(axesHelper, gridHelper);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(10, 10, 10);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
 
-    controls.enableRotate = true;
-    controls.enableZoom = true;
-    controls.enablePan = true;
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(40, 40),
+      new THREE.ShadowMaterial({ opacity: 0.2 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -1;
+    floor.receiveShadow = true;
+    scene.add(floor);
 
-
+    const ext = modelUrl.slice(modelUrl.lastIndexOf('.')).toLowerCase();
     let loader;
-    switch (fileType) {
-      case '.stl':
-        loader = new STLLoader();
-        break;
-      case '.obj':
-        loader = new OBJLoader();
-        break;
-      case '.3mf':
-        loader = new ThreeMFLoader();
-        break;
+    switch (ext) {
+      case '.stl': loader = new STLLoader(); break;
+      case '.obj': loader = new OBJLoader(); break;
+      case '.3mf': loader = new ThreeMFLoader(); break;
       case '.glb':
-      case '.gltf':
-        loader = new GLTFLoader();
-        break;
-      case '.ply':
-        loader = new PLYLoader();
-        break;
-      case '.fbx':
-        loader = new FBXLoader();
-        break;
+      case '.gltf': loader = new GLTFLoader(); break;
+      case '.ply': loader = new PLYLoader(); break;
+      case '.fbx': loader = new FBXLoader(); break;
       default:
-        console.error('Unsupported file type:', fileType);
+        setError(`Unsupported format: ${ext}`);
+        setLoading(false);
         return;
     }
 
-    const blobURL = URL.createObjectURL(new Blob([fileData]));
-
     loader.load(
-      blobURL,
+      modelUrl,
       (object) => {
-        console.log('Model loaded:', object);
-        let model;
-
-        if (fileType === '.stl') {
-          const material = new THREE.MeshStandardMaterial({ color: 0x6a1b9a });
-          model = new THREE.Mesh(object, material);
-        } else if (fileType === '.glb' || fileType === '.gltf') {
+        if (ext === '.stl') {
+          model = new THREE.Mesh(object, new THREE.MeshStandardMaterial({ color: 0x6a1b9a }));
+        } else if (ext === '.glb' || ext === '.gltf') {
           model = object.scene;
-        } else if (fileType === '.ply') {
-          const material = new THREE.MeshStandardMaterial({ color: 0x777777 });
-          model = new THREE.Mesh(object, material);
+        } else if (ext === '.ply') {
+          model = new THREE.Mesh(object, new THREE.MeshStandardMaterial({ color: 0x777777 }));
         } else {
           model = object;
         }
 
         model.traverse?.((child) => {
-     if (child.isMesh) {
-    child.geometry.computeBoundingBox();
-    const box = child.geometry.boundingBox;
-    const center = new THREE.Vector3();
-    box.getCenter(center);
-    child.position.sub(center); 
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
 
-    const yOffset = box.max.y - box.min.y;
-    child.position.y += yOffset / 4; 
-  }
-   });
-
+            const box = child.geometry.boundingBox ?? child.geometry.computeBoundingBox();
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+            child.position.sub(center);
+            child.position.y += (box.max.y - box.min.y) / 4;
+          }
+        });
 
         model.scale.set(2, 2, 2);
         scene.add(model);
+        setLoading(false);
       },
       undefined,
-      (error) => {
-        console.error('Model failed to load:', error);
+      (err) => {
+        console.error('Failed to load model:', err);
+        setError('Failed to load model.');
+        setLoading(false);
       }
     );
 
@@ -128,53 +114,36 @@ export default function ModelViewer() {
     };
     animate();
 
+    const resizeRenderer = () => {
+      if (!mountRef.current) return;
+      const width = mountRef.current.clientWidth;
+      const height = mountRef.current.clientHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    };
+    window.addEventListener('resize', resizeRenderer);
+    resizeRenderer();
+
     return () => {
-      URL.revokeObjectURL(blobURL);
+      window.removeEventListener('resize', resizeRenderer);
       renderer.dispose();
     };
-  }, [fileData, fileType]);
+  }, [modelUrl]);
 
   return (
-    <div
-      style={{
-        padding: '40px',
-        maxWidth: '1000px',
-        margin: 'auto',
-        backgroundColor: '#ffffff',
-        borderRadius: '16px',
-        boxShadow: '0 12px 30px rgba(0, 0, 0, 0.08)',
-        fontFamily: 'Inter, Segoe UI, sans-serif',
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0, fontSize: '2rem', color: '#333' }}>Your 3D Model Preview</h2>
-        <Link to="/setup">
-          <button
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#6a1b9a',
-              color: 'white',
-              fontSize: '1rem',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-            }}
-          >
-            Customize Print Settings
-          </button>
-        </Link>
-      </div>
-
+    <div style={{ padding: '30px' }}>
+      <h2>Preview Model</h2>
+      {loading && <p style={{ textAlign: 'center' }}>⏳ Loading 3D model...</p>}
+      {error && <p style={{ color: '#d32f2f', textAlign: 'center' }}>{error}</p>}
       <div
         ref={mountRef}
         style={{
-          marginTop: '30px',
           width: '100%',
           height: '500px',
+          backgroundColor: '#f2f4f8',
           borderRadius: '12px',
           overflow: 'hidden',
-          backgroundColor: '#f2f4f8',
         }}
       />
     </div>

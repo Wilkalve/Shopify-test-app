@@ -29,7 +29,8 @@
     "@remix-run/node": "^2.16.1",
     "@remix-run/react": "^2.16.1",
     "@remix-run/serve": "^2.16.1",
-    "@shopify/app-bridge-react": "^4.1.6",
+    "@shopify/app-bridge": "^3.7.10",
+    "@shopify/app-bridge-react": "^4.2.0",
     "@shopify/polaris": "^12.27.0",
     "@shopify/react-i18n": "^7.14.0",
     "@shopify/shopify-app-remix": "^3.7.0",
@@ -48,12 +49,13 @@
     "@types/node": "^22.2.0",
     "@types/react": "^18.2.31",
     "@types/react-dom": "^18.2.14",
+    "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^10.0.1",
     "prettier": "^3.2.4",
     "prisma": "^6.11.1",
     "typescript": "^5.2.2",
-    "vite": "^6.2.2"
+    "vite": "^6.3.5"
   },
   "workspaces": [
     "extensions/*"

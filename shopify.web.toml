@@ -5,3 +5,13 @@ webhooks_path = "/webhooks/app/uninstalled"
 [commands]
 predev = "npx prisma generate"
 dev = "npx prisma migrate deploy && npm exec remix vite:dev"
+
+[[proxy]]
+subpath = "upload"
+url = "https://aaace0327176.ngrok-free.app/upload"
+prefix = true
+
+[[proxy]]
+subpath = "viewer"
+url = "https://aaace0327176.ngrok-free.app/viewer"
+prefix = true
