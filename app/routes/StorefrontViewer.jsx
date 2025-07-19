@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-export default function StorefrontViewer({ modelUrl }) {
+export default function StorefrontViewer({ modelUrl, onLoad }) {
   const mountRef = useRef();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -18,6 +19,7 @@ export default function StorefrontViewer({ modelUrl }) {
 
     let renderer;
     let model;
+    let animationFrame;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf4f6f9);
@@ -31,6 +33,7 @@ export default function StorefrontViewer({ modelUrl }) {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
     renderer.shadowMap.enabled = true;
+
     mountRef.current.innerHTML = '';
     mountRef.current.appendChild(renderer.domElement);
 
@@ -83,10 +86,9 @@ export default function StorefrontViewer({ modelUrl }) {
         }
 
         model.traverse?.((child) => {
-          if (child.isMesh) {
+          if (child.isMesh && child.geometry) {
             child.castShadow = true;
             child.receiveShadow = true;
-
             const box = child.geometry.boundingBox ?? child.geometry.computeBoundingBox();
             const center = new THREE.Vector3();
             box.getCenter(center);
@@ -98,24 +100,24 @@ export default function StorefrontViewer({ modelUrl }) {
         model.scale.set(2, 2, 2);
         scene.add(model);
         setLoading(false);
+        if (typeof onLoad === 'function') onLoad(); // Trigger preview completion
       },
       undefined,
       (err) => {
-        console.error('Failed to load model:', err);
-        setError('Failed to load model.');
+        console.error('Model load error:', err);
+        setError('❌ Failed to load model.');
         setLoading(false);
       }
     );
 
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationFrame = requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     };
     animate();
 
     const resizeRenderer = () => {
-      if (!mountRef.current) return;
       const width = mountRef.current.clientWidth;
       const height = mountRef.current.clientHeight;
       camera.aspect = width / height;
@@ -127,6 +129,7 @@ export default function StorefrontViewer({ modelUrl }) {
 
     return () => {
       window.removeEventListener('resize', resizeRenderer);
+      cancelAnimationFrame(animationFrame);
       renderer.dispose();
     };
   }, [modelUrl]);

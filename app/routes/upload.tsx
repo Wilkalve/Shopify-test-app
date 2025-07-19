@@ -11,13 +11,15 @@ export const action = async ({ request }) => {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
+  const timestamp = Date.now(); 
+  const safeName = `${timestamp}_${file.name.replace(/[^a-z0-9.\-_]/gi, '_')}`; // Timestamped filename
   const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
 
-  const safeName = file.name.replace(/[^a-z0-9.\-_]/gi, '_');
-  const filePath = path.join(uploadsDir, safeName);
+  await writeFile(path.join(uploadsDir, safeName), buffer);
 
-  await writeFile(filePath, buffer);
-
-  const fileUrl = `/uploads/${safeName}`;
-  return json({ url: fileUrl });
+  return json({ url: `/uploads/${safeName}` });
 };
+
+export default function UploadRoute() {
+  return null;
+}

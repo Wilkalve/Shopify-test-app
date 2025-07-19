@@ -2,8 +2,7 @@ import React, { useState, useRef } from 'react';
 
 export default function StorefrontFileUpload({ label = "Upload 3D Model", onSuccess }) {
   const [fileName, setFileName] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [status, setStatus] = useState('');
   const fileInputRef = useRef();
 
   const allowedExtensions = ['.stl', '.obj', '.3mf', '.glb', '.gltf', '.ply', '.fbx'];
@@ -11,20 +10,18 @@ export default function StorefrontFileUpload({ label = "Upload 3D Model", onSucc
   const handleUpload = async (file) => {
     const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
     if (!allowedExtensions.includes(ext)) {
-      setError('Unsupported format');
-      setSuccess('');
+      setStatus('⚠️ Unsupported format');
       return;
     }
 
     setFileName(file.name);
-    setError('');
-    setSuccess('');
+    setStatus('Uploading...');
 
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const res = await fetch('/storefront/upload-proxy', {
+      const res = await fetch('/upload', {
         method: 'POST',
         body: formData,
       });
@@ -32,15 +29,14 @@ export default function StorefrontFileUpload({ label = "Upload 3D Model", onSucc
       if (!res.ok) throw new Error('Upload failed');
 
       const result = await res.json();
-
       const cleanFileName = file.name.replace(/[^a-z0-9.\-_]/gi, '_');
       const fileUrl = `/uploads/${cleanFileName}`;
 
-      setSuccess(`✅ Uploaded: ${file.name}`);
-      onSuccess?.(fileUrl); // 🔥 Notify parent component
+      setStatus(`✅ Uploaded: ${file.name}`);
+      onSuccess?.(fileUrl); // Notify parent
     } catch (err) {
       console.error('Upload error:', err);
-      setError('⚠️ Upload failed');
+      setStatus('❌ Upload failed');
     }
   };
 
@@ -90,8 +86,7 @@ export default function StorefrontFileUpload({ label = "Upload 3D Model", onSucc
         />
       </div>
 
-      {error && <p style={{ color: '#d32f2f' }}>{error}</p>}
-      {success && <p style={{ color: '#28a745' }}>{success}</p>}
+      {status && <p style={{ marginTop: '16px', color: status.includes('✅') ? '#28a745' : '#d32f2f' }}>{status}</p>}
     </div>
   );
 }

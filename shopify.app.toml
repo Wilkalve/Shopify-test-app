@@ -4,7 +4,7 @@
 name = "Novaprint 3D Printing"
 client_id = "47c3becbd20d6fb0c7387c1c11886854"
 handle = "3d-v2-printing"
-application_url = "https://picture-hill-segments-television.trycloudflare.com"
+application_url = "https://sh-handle-hugo-southampton.trycloudflare.com"
 embedded = true
 
 [build]
@@ -27,7 +27,7 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://picture-hill-segments-television.trycloudflare.com/auth/callback", "https://picture-hill-segments-television.trycloudflare.com/auth/shopify/callback", "https://picture-hill-segments-television.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://sh-handle-hugo-southampton.trycloudflare.com/auth/callback", "https://sh-handle-hugo-southampton.trycloudflare.com/auth/shopify/callback", "https://sh-handle-hugo-southampton.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false

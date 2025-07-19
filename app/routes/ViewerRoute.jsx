@@ -1,5 +1,5 @@
-import { useLoaderData } from '@remix-run/react';
-import StorefrontViewer from '../routes/modelViewer';
+import { useLoaderData, Link } from '@remix-run/react';
+import StorefrontViewer from './StorefrontViewer';
 import { useState } from 'react';
 
 export async function loader({ request }) {
@@ -29,8 +29,11 @@ export default function ViewerRoute() {
 
   return (
     <div style={{ padding: '40px', maxWidth: '960px', margin: '0 auto' }}>
-      <h2 style={{ marginBottom: '20px' }}>Preview Your 3D Model</h2>
-      
+      <h1 style={{ marginBottom: '10px', textAlign: 'center' }}>🧿 3D Model Preview</h1>
+      <p style={{ textAlign: 'center', marginBottom: '30px' }}>
+        View and interact with your uploaded model below. You can also copy a sharable link or return to the storefront.
+      </p>
+
       <StorefrontViewer modelUrl={modelUrl} />
 
       <div style={{ marginTop: '30px', textAlign: 'center' }}>
@@ -44,11 +47,27 @@ export default function ViewerRoute() {
             borderRadius: '6px',
             cursor: 'pointer',
             fontWeight: 'bold',
+            marginRight: '15px',
           }}
         >
           📋 Copy Viewer Link
         </button>
-        {copied && <p style={{ marginTop: '10px', color: '#28a745' }}>Link copied!</p>}
+
+        <Link
+          to="/storefront"
+          style={{
+            padding: '10px 20px',
+            background: '#555',
+            color: '#fff',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+          }}
+        >
+          ← Back to Storefront
+        </Link>
+
+        {copied && <p style={{ marginTop: '10px', color: '#28a745' }}>✅ Link copied to clipboard!</p>}
       </div>
     </div>
   );
