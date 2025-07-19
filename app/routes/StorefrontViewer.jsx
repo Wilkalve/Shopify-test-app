@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export default function StorefrontViewer({ modelUrl, onLoad }) {
   const mountRef = useRef();
@@ -100,7 +99,7 @@ export default function StorefrontViewer({ modelUrl, onLoad }) {
         model.scale.set(2, 2, 2);
         scene.add(model);
         setLoading(false);
-        if (typeof onLoad === 'function') onLoad(); // Trigger preview completion
+        if (typeof onLoad === 'function') onLoad();
       },
       undefined,
       (err) => {
