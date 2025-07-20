@@ -4,7 +4,7 @@
 name = "Novaprint 3D Printing"
 client_id = "47c3becbd20d6fb0c7387c1c11886854"
 handle = "3d-v2-printing"
-application_url = "https://inner-pointer-memorabilia-print.trycloudflare.com"
+application_url = "https://cheat-decorating-ap-chi.trycloudflare.com"
 embedded = true
 
 [build]
@@ -27,7 +27,7 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://inner-pointer-memorabilia-print.trycloudflare.com/auth/callback", "https://inner-pointer-memorabilia-print.trycloudflare.com/auth/shopify/callback", "https://inner-pointer-memorabilia-print.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://cheat-decorating-ap-chi.trycloudflare.com/auth/callback", "https://cheat-decorating-ap-chi.trycloudflare.com/auth/shopify/callback", "https://cheat-decorating-ap-chi.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
