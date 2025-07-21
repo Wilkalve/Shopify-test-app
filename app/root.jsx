@@ -1,5 +1,9 @@
 import {
-  Outlet, Links, Meta, Scripts, ScrollRestoration
+  Outlet,
+  Links,
+  Meta,
+  Scripts,
+  ScrollRestoration
 } from "@remix-run/react";
 
 import {
@@ -10,7 +14,9 @@ import {
   Layout,
   Card
 } from "@shopify/polaris";
+
 import createApp from "@shopify/app-bridge";
+
 let polarisTranslations = {};
 if (typeof window !== "undefined") {
   const module = await import("@shopify/polaris/locales/en.json", {
@@ -19,14 +25,12 @@ if (typeof window !== "undefined") {
   polarisTranslations = module.default;
 }
 
-
 export const links = () => [
   {
     rel: "stylesheet",
     href: "https://unpkg.com/@shopify/polaris@12.7.0/build/esm/styles.css"
   }
 ];
-
 
 export default function App() {
   const host =
@@ -38,7 +42,7 @@ export default function App() {
     typeof window !== "undefined" && host
       ? {
           host,
-          apiKey: "YOUR_API_KEY", 
+          apiKey: "YOUR_API_KEY", // Replace with your actual API key
           forceRedirect: true
         }
       : null;
@@ -62,7 +66,7 @@ export default function App() {
                 <Navigation.Section
                   title="Navigation"
                   items={[
-                    { label: "Welcome", url: "/ " },
+                    { label: "Welcome", url: "/" },
                     { label: "Setup", url: "/setup" },
                     { label: "View Orders", url: "/view-order" },
                     { label: "Help", url: "/help" }
