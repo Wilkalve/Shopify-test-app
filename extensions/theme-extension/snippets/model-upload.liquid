@@ -1,9 +1,3 @@
-{% assign shop_domain = shop.myshopify_domain %}
-{% assign encoded_host = shop_domain | append: '/admin' | base64_encode %}
-
-<iframe
-  src="https://shopify-test-app-production.up.railway.app/storefront?shop={{ shop_domain }}&host={{ encoded_host }}"
-  width="100%"
-  height="300"
-  style="border: none; border-radius: 10px; background: #f9f9f9;"
-></iframe>
+<!-- blocks/file-viewer.liquid -->
+<div id="nv-3d-viewer" data-shop="{{ shop.permanent_domain }}"></div>
+<script src="https://your-app-url.com/public/storefront.js" defer></script>

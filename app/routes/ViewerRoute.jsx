@@ -1,5 +1,5 @@
 import { useLoaderData, Link } from '@remix-run/react';
-import StorefrontViewer from './StorefrontViewer';
+import StorefrontViewer from '../../storefront/StorefrontViewer';
 import { useState } from 'react';
 
 export async function loader({ request }) {

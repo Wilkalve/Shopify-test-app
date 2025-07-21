@@ -18,7 +18,6 @@
     "graphql-codegen": "graphql-codegen",
     "vite": "vite"
   },
-
   "type": "module",
   "engines": {
     "node": "^18.20 || ^20.10 || >=21.0.0"

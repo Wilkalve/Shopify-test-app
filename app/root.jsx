@@ -28,7 +28,7 @@ export default function App() {
     typeof window !== "undefined" && host
       ? {
           host,
-          apiKey: "YOUR_API_KEY", // Replace with actual key
+          apiKey: "YOUR_API_KEY", 
           forceRedirect: true
         }
       : null;
@@ -52,7 +52,7 @@ export default function App() {
                 <Navigation.Section
                   title="Navigation"
                   items={[
-                    { label: "Welcome", url: "/" },
+                    { label: "Welcome", url: "/ " },
                     { label: "Setup", url: "/setup" },
                     { label: "View Orders", url: "/view-order" },
                     { label: "Help", url: "/help" }
