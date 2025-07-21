@@ -2,35 +2,86 @@ import {
   Outlet, Links, Meta, Scripts, ScrollRestoration
 } from "@remix-run/react";
 
+import {
+  AppProvider as PolarisProvider,
+  Page,
+  Frame,
+  Navigation,
+  Layout,
+  Card
+} from "@shopify/polaris";
+import createApp from "@shopify/app-bridge";
+let polarisTranslations = {};
+if (typeof window !== "undefined") {
+  const module = await import("@shopify/polaris/locales/en.json", {
+    assert: { type: "json" }
+  });
+  polarisTranslations = module.default;
+}
+
+
 export const links = () => [
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+    href: "https://unpkg.com/@shopify/polaris@12.7.0/build/esm/styles.css"
   }
 ];
 
+
 export default function App() {
+  const host =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("host")
+      : undefined;
+
+  const appBridgeConfig =
+    typeof window !== "undefined" && host
+      ? {
+          host,
+          apiKey: "YOUR_API_KEY", 
+          forceRedirect: true
+        }
+      : null;
+
+  const app =
+    typeof window !== "undefined" && appBridgeConfig
+      ? createApp(appBridgeConfig)
+      : null;
+
   return (
     <html lang="en">
       <head>
         <Meta />
         <Links />
       </head>
-      <body style={{ margin: 0, fontFamily: "'Inter', sans-serif", background: "#f9fafb" }}>
-        <nav style={{ background: "#6a1b9a", padding: "20px", color: "#fff" }}>
-          <h2 style={{ margin: 0 }}>NV 3D Print</h2>
-          <ul style={{ display: "flex", gap: "15px", marginTop: "10px", listStyle: "none" }}>
-            <li><a href="/" style={{ color: "#fff", textDecoration: "none" }}>Welcome</a></li>
-            <li><a href="/setup" style={{ color: "#fff", textDecoration: "none" }}>Setup</a></li>
-            <li><a href="/view-order" style={{ color: "#fff", textDecoration: "none" }}>View Orders</a></li>
-            <li><a href="/help" style={{ color: "#fff", textDecoration: "none" }}>Help</a></li>
-          </ul>
-        </nav>
-
-        <main style={{ padding: "40px", maxWidth: "960px", margin: "0 auto" }}>
-          <Outlet />
-        </main>
-
+      <body style={{ margin: 0 }}>
+        <PolarisProvider i18n={polarisTranslations}>
+          <Frame
+            navigation={
+              <Navigation location="/">
+                <Navigation.Section
+                  title="Navigation"
+                  items={[
+                    { label: "Welcome", url: "/ " },
+                    { label: "Setup", url: "/setup" },
+                    { label: "View Orders", url: "/view-order" },
+                    { label: "Help", url: "/help" }
+                  ]}
+                />
+              </Navigation>
+            }
+          >
+            <Page title="NV 3D Print" fullWidth>
+              <Layout>
+                <Layout.Section>
+                  <Card sectioned title="Dashboard">
+                    <Outlet />
+                  </Card>
+                </Layout.Section>
+              </Layout>
+            </Page>
+          </Frame>
+        </PolarisProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
