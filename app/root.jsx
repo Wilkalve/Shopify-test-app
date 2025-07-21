@@ -3,8 +3,8 @@ import {
 } from "@remix-run/react";
 
 import { AppProvider as PolarisProvider } from "@shopify/polaris";
-import { Provider as AppBridgeProvider } from "@shopify/app-bridge-react";
 import polarisTranslations from "@shopify/polaris/locales/en.json";
+import createApp from "@shopify/app-bridge";
 
 export const links = () => [{
   rel: "stylesheet",
@@ -17,11 +17,15 @@ export default function App() {
       ? new URLSearchParams(window.location.search).get("host")
       : undefined;
 
+  // ✅ Create App Bridge instance directly
   const appBridgeConfig = {
-    apiKey: process.env.SHOPIFY_API_KEY, 
+    apiKey: import.meta.env.SHOPIFY_API_KEY, // For browser-safe env access
     host,
     forceRedirect: true,
   };
+
+  // Optionally create App Bridge instance (not required unless used later)
+  const app = typeof window !== "undefined" ? createApp(appBridgeConfig) : null;
 
   return (
     <html lang="en">
@@ -30,25 +34,22 @@ export default function App() {
         <Links />
       </head>
       <body style={{ margin: 0, fontFamily: "sans-serif" }}>
-        {/* ✅ App Bridge context wrapper */}
-        <AppBridgeProvider config={appBridgeConfig}>
-          <PolarisProvider i18n={polarisTranslations}>
-            <div style={{ display: "flex", minHeight: "100vh" }}>
-              <nav style={navStyle}>
-                <h2 style={{ fontSize: "1rem", marginBottom: "1.5rem" }}>Menu</h2>
-                <ul style={{ listStyle: "none", padding: 0 }}>
-                  <li><Link to="/" style={linkStyle}>Welcome</Link></li>
-                  <li><Link to="/StorefrontFileUpload" style={linkStyle}>Setup</Link></li>
-                  <li><Link to="/view-order" style={linkStyle}>View Orders</Link></li>
-                  <li><Link to="/help" style={linkStyle}>Help</Link></li>
-                </ul>
-              </nav>
-              <main style={{ flex: 1, padding: "2rem" }}>
-                <Outlet />
-              </main>
-            </div>
-          </PolarisProvider>
-        </AppBridgeProvider>
+        <PolarisProvider i18n={polarisTranslations}>
+          <div style={{ display: "flex", minHeight: "100vh" }}>
+            <nav style={navStyle}>
+              <h2 style={{ fontSize: "1rem", marginBottom: "1.5rem" }}>Menu</h2>
+              <ul style={{ listStyle: "none", padding: 0 }}>
+                <li><Link to="/" style={linkStyle}>Welcome</Link></li>
+                <li><Link to="/StorefrontFileUpload" style={linkStyle}>Setup</Link></li>
+                <li><Link to="/view-order" style={linkStyle}>View Orders</Link></li>
+                <li><Link to="/help" style={linkStyle}>Help</Link></li>
+              </ul>
+            </nav>
+            <main style={{ flex: 1, padding: "2rem" }}>
+              <Outlet />
+            </main>
+          </div>
+        </PolarisProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
