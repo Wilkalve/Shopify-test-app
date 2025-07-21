@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
+
 import {
   AppProvider as PolarisAppProvider,
   Button,
@@ -9,9 +15,9 @@ import {
   Text,
   TextField,
 } from "@shopify/polaris";
+
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
-
 
 export const loader = async ({ request }) => {
   const { login } = await import("../../shopify.server");
@@ -35,6 +41,9 @@ export default function Auth() {
   const loaderData = useLoaderData();
   const actionData = useActionData();
   const [shop, setShop] = useState("");
+  const [searchParams] = useSearchParams();
+  const host = searchParams.get("host");
+
   const { errors } = actionData || loaderData;
 
   return (
@@ -42,6 +51,9 @@ export default function Auth() {
       <Page>
         <Card>
           <Form method="post">
+            {/* ✅ Hidden field for host */}
+            <input type="hidden" name="host" value={host || ""} />
+
             <FormLayout>
               <Text variant="headingMd" as="h2">
                 Log in
@@ -54,7 +66,7 @@ export default function Auth() {
                 value={shop}
                 onChange={setShop}
                 autoComplete="on"
-                error={errors.shop}
+                error={errors?.shop}
               />
               <Button submit>Log in</Button>
             </FormLayout>
