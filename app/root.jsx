@@ -10,7 +10,7 @@ import {
   Layout,
   Card
 } from "@shopify/polaris";
-import polarisTranslations from "@shopify/polaris/locales/en.json";
+import polarisTranslations from "@shopify/polaris/locales/en.json" with { type: "json" };
 import createApp from "@shopify/app-bridge";
 
 export const links = () => [{
@@ -53,7 +53,7 @@ export default function App() {
                   title="Navigation"
                   items={[
                     { label: "Welcome", url: "/" },
-                    { label: "Setup", url: "/StorefrontFileUpload" },
+                    { label: "Setup", url: "/setup" },
                     { label: "View Orders", url: "/view-order" },
                     { label: "Help", url: "/help" }
                   ]}
@@ -61,7 +61,7 @@ export default function App() {
               </Navigation>
             }
           >
-            <Page title="My Shopify App" fullWidth>
+            <Page title="NV 3D Print" fullWidth>
               <Layout>
                 <Layout.Section>
                   <Card sectioned title="Dashboard">
