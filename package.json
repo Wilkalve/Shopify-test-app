@@ -2,7 +2,7 @@
   "name": "novaprint-3-d-printing",
   "private": true,
   "scripts": {
-    "build": "npm run setup && remix vite:build",
+    "build": "npm run setup && remix build",
     "dev": "shopify app dev",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
