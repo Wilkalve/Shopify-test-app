@@ -10,7 +10,7 @@ import {
   Layout,
   Card
 } from "@shopify/polaris";
-import polarisTranslations from "@shopify/polaris/locales/en.json";
+import polarisTranslations from "@shopify/polaris/locales/en.json" assert { type: "json" };
 import createApp from "@shopify/app-bridge";
 
 export const links = () => [{
