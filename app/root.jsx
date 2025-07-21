@@ -3,15 +3,8 @@ import {
 } from "@remix-run/react";
 
 import { AppProvider as PolarisProvider } from "@shopify/polaris";
-import createApp from "@shopify/app-bridge";
-
-const config = {
-  apiKey: "47c3becbd20d6fb0c7387c1c11886854",
-  host: typeof window !== "undefined"
-    ? new URLSearchParams(window.location.search).get("host")
-    : "",
-  forceRedirect: true,
-};
+import { Provider as AppBridgeProvider } from "@shopify/app-bridge-react";
+import polarisTranslations from "@shopify/polaris/locales/en.json";
 
 export const links = () => [{
   rel: "stylesheet",
@@ -19,7 +12,16 @@ export const links = () => [{
 }];
 
 export default function App() {
-  const app = typeof window !== "undefined" ? createApp(config) : null;
+  const host =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("host")
+      : undefined;
+
+  const appBridgeConfig = {
+    apiKey: process.env.SHOPIFY_API_KEY, 
+    host,
+    forceRedirect: true,
+  };
 
   return (
     <html lang="en">
@@ -28,22 +30,25 @@ export default function App() {
         <Links />
       </head>
       <body style={{ margin: 0, fontFamily: "sans-serif" }}>
-        <PolarisProvider i18n={{ Polaris: { /* i18n values */ } }}>
-          <div style={{ display: "flex", minHeight: "100vh" }}>
-            <nav style={navStyle}>
-              <h2 style={{ fontSize: "1rem", marginBottom: "1.5rem" }}>Menu</h2>
-              <ul style={{ listStyle: "none", padding: 0 }}>
-                <li><Link to="/" style={linkStyle}>Welcome</Link></li>
-                <li><Link to="/StorefrontFileUpload" style={linkStyle}>Setup</Link></li>
-                <li><Link to="/view-order" style={linkStyle}>View Orders</Link></li>
-                <li><Link to="/help" style={linkStyle}>Help</Link></li>
-              </ul>
-            </nav>
-            <main style={{ flex: 1, padding: "2rem" }}>
-              <Outlet />
-            </main>
-          </div>
-        </PolarisProvider>
+        {/* ✅ App Bridge context wrapper */}
+        <AppBridgeProvider config={appBridgeConfig}>
+          <PolarisProvider i18n={polarisTranslations}>
+            <div style={{ display: "flex", minHeight: "100vh" }}>
+              <nav style={navStyle}>
+                <h2 style={{ fontSize: "1rem", marginBottom: "1.5rem" }}>Menu</h2>
+                <ul style={{ listStyle: "none", padding: 0 }}>
+                  <li><Link to="/" style={linkStyle}>Welcome</Link></li>
+                  <li><Link to="/StorefrontFileUpload" style={linkStyle}>Setup</Link></li>
+                  <li><Link to="/view-order" style={linkStyle}>View Orders</Link></li>
+                  <li><Link to="/help" style={linkStyle}>Help</Link></li>
+                </ul>
+              </nav>
+              <main style={{ flex: 1, padding: "2rem" }}>
+                <Outlet />
+              </main>
+            </div>
+          </PolarisProvider>
+        </AppBridgeProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
