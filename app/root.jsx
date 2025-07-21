@@ -16,15 +16,21 @@ import {
 } from "@shopify/polaris";
 
 import createApp from "@shopify/app-bridge";
+import React, { useEffect, useState } from "react";
 
+// Load translations in the browser only
 let polarisTranslations = {};
 if (typeof window !== "undefined") {
-  const module = await import("@shopify/polaris/locales/en.json", {
-    assert: { type: "json" }
-  });
-  polarisTranslations = module.default;
+  const loadTranslations = async () => {
+    const module = await import("@shopify/polaris/locales/en.json", {
+      assert: { type: "json" }
+    });
+    polarisTranslations = module.default;
+  };
+  loadTranslations();
 }
 
+// Load Polaris styles via CDN instead of importing the CSS
 export const links = () => [
   {
     rel: "stylesheet",
@@ -33,24 +39,24 @@ export const links = () => [
 ];
 
 export default function App() {
-  const host =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("host")
-      : undefined;
+  const [app, setApp] = useState(null);
 
-  const appBridgeConfig =
-    typeof window !== "undefined" && host
-      ? {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const host = new URLSearchParams(window.location.search).get("host");
+
+      if (host) {
+        const appBridgeConfig = {
           host,
-          apiKey: "YOUR_API_KEY", // Replace with your actual API key
+          apiKey: "YOUR_API_KEY", // 🔐 Replace with your actual API key
           forceRedirect: true
-        }
-      : null;
+        };
 
-  const app =
-    typeof window !== "undefined" && appBridgeConfig
-      ? createApp(appBridgeConfig)
-      : null;
+        const appInstance = createApp(appBridgeConfig);
+        setApp(appInstance);
+      }
+    }
+  }, []);
 
   return (
     <html lang="en">
