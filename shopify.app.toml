@@ -32,12 +32,5 @@ redirect_urls = ["https://cheat-decorating-ap-chi.trycloudflare.com/auth/callbac
 [pos]
 embedded = false
 
-export default {
-  // other config...
-  server: {
-    env: ["SHOPIFY_API_KEY"]
-  },
-  public: {
-    env: ["SHOPIFY_API_KEY"]
-  }
-};
+
+
