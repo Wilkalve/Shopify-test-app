@@ -14,6 +14,7 @@ if (
 export default {
   ignoredRouteFiles: ["**/.*"],
   appDirectory: "app",
+  serverBuildPath: "build/server/index.js",
   serverModuleFormat: "cjs", 
   dev: { port: process.env.HMR_SERVER_PORT || 8002 },
   future: {},
