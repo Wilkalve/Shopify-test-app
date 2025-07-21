@@ -1,8 +1,15 @@
 import {
-  Outlet, Link, Links, Meta, Scripts, ScrollRestoration
+  Outlet, Links, Meta, Scripts, ScrollRestoration
 } from "@remix-run/react";
 
-import { AppProvider as PolarisProvider } from "@shopify/polaris";
+import {
+  AppProvider as PolarisProvider,
+  Page,
+  Frame,
+  Navigation,
+  Layout,
+  Card
+} from "@shopify/polaris";
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import createApp from "@shopify/app-bridge";
 
@@ -17,15 +24,19 @@ export default function App() {
       ? new URLSearchParams(window.location.search).get("host")
       : undefined;
 
-  // ✅ Create App Bridge instance directly
-  const appBridgeConfig = {
-    apiKey: import.meta.env.SHOPIFY_API_KEY, // For browser-safe env access
-    host,
-    forceRedirect: true,
-  };
+  const appBridgeConfig =
+    typeof window !== "undefined" && host
+      ? {
+          host,
+          apiKey: "YOUR_API_KEY", // Replace with actual key
+          forceRedirect: true
+        }
+      : null;
 
-  // Optionally create App Bridge instance (not required unless used later)
-  const app = typeof window !== "undefined" ? createApp(appBridgeConfig) : null;
+  const app =
+    typeof window !== "undefined" && appBridgeConfig
+      ? createApp(appBridgeConfig)
+      : null;
 
   return (
     <html lang="en">
@@ -33,22 +44,33 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body style={{ margin: 0, fontFamily: "sans-serif" }}>
+      <body style={{ margin: 0 }}>
         <PolarisProvider i18n={polarisTranslations}>
-          <div style={{ display: "flex", minHeight: "100vh" }}>
-            <nav style={navStyle}>
-              <h2 style={{ fontSize: "1rem", marginBottom: "1.5rem" }}>Menu</h2>
-              <ul style={{ listStyle: "none", padding: 0 }}>
-                <li><Link to="/" style={linkStyle}>Welcome</Link></li>
-                <li><Link to="/StorefrontFileUpload" style={linkStyle}>Setup</Link></li>
-                <li><Link to="/view-order" style={linkStyle}>View Orders</Link></li>
-                <li><Link to="/help" style={linkStyle}>Help</Link></li>
-              </ul>
-            </nav>
-            <main style={{ flex: 1, padding: "2rem" }}>
-              <Outlet />
-            </main>
-          </div>
+          <Frame
+            navigation={
+              <Navigation location="/">
+                <Navigation.Section
+                  title="Navigation"
+                  items={[
+                    { label: "Welcome", url: "/" },
+                    { label: "Setup", url: "/StorefrontFileUpload" },
+                    { label: "View Orders", url: "/view-order" },
+                    { label: "Help", url: "/help" }
+                  ]}
+                />
+              </Navigation>
+            }
+          >
+            <Page title="My Shopify App" fullWidth>
+              <Layout>
+                <Layout.Section>
+                  <Card sectioned title="Dashboard">
+                    <Outlet />
+                  </Card>
+                </Layout.Section>
+              </Layout>
+            </Page>
+          </Frame>
         </PolarisProvider>
         <ScrollRestoration />
         <Scripts />
@@ -56,18 +78,3 @@ export default function App() {
     </html>
   );
 }
-
-const linkStyle = {
-  display: "block",
-  marginBottom: "1rem",
-  color: "#333",
-  textDecoration: "none",
-  fontWeight: "bold",
-};
-
-const navStyle = {
-  width: "200px",
-  background: "#f4f6f8",
-  padding: "1rem",
-  borderRight: "1px solid #ccc"
-};
