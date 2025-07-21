@@ -48,7 +48,7 @@ export default function App() {
       if (host) {
         const appBridgeConfig = {
           host,
-          apiKey: "YOUR_API_KEY", // 🔐 Replace with your actual API key
+          apiKey: process.env.SHOPIFY_APP_URL, 
           forceRedirect: true
         };
 
