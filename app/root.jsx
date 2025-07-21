@@ -13,10 +13,13 @@ import {
 import polarisTranslations from "@shopify/polaris/locales/en.json" assert { type: "json" };
 import createApp from "@shopify/app-bridge";
 
-export const links = () => [{
-  rel: "stylesheet",
-  href: "https://unpkg.com/@shopify/polaris@12.7.0/build/esm/styles.css"
-}];
+export const links = () => [
+  {
+    rel: "stylesheet",
+    href: "https://unpkg.com/@shopify/polaris@12.7.0/build/esm/styles.css"
+  }
+];
+
 
 export default function App() {
   const host =
