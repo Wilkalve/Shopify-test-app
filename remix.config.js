@@ -19,3 +19,12 @@ export default {
   dev: { port: process.env.HMR_SERVER_PORT || 8002 },
   future: {},
 };
+
+// remix.config.js
+module.exports = {
+  serverDependenciesToBundle: ['@shopify/polaris'],
+  future: {
+    unstable_cssModules: true,
+    unstable_cssSideEffectImports: true,
+  },
+};

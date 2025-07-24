@@ -17,7 +17,7 @@ import {
 } from "@shopify/polaris";
 
 import polarisTranslations from "@shopify/polaris/locales/en.json";
-import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
+
 
 export const loader = async ({ request }) => {
   const { login } = await import("../../shopify.server");
