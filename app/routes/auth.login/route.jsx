@@ -37,9 +37,11 @@ export const action = async ({ request }) => {
   return { errors };
 };
 
-export const headers = () => ({
-  "Content-Security-Policy": "frame-ancestors https://*.myshopify.com https://admin.shopify.com;",
-});
+ const headers = new Headers();
+  headers.set(
+    "Content-Security-Policy",
+    `frame-ancestors https://${shop} https://admin.shopify.com;`
+  );
 
 export default function Auth() {
   const loaderData = useLoaderData();
