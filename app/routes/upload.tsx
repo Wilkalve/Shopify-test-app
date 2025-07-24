@@ -11,8 +11,8 @@ export const action = async ({ request }) => {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const timestamp = Date.now(); 
-  const safeName = `${timestamp}_${file.name.replace(/[^a-z0-9.\-_]/gi, '_')}`; // Timestamped filename
+  const timestamp = Date.now();
+  const safeName = `${timestamp}_${file.name.replace(/[^a-z0-9.\-_]/gi, '_')}`;
   const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
 
   await writeFile(path.join(uploadsDir, safeName), buffer);

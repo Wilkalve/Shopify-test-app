@@ -3,7 +3,8 @@ import {
   Links,
   Meta,
   Scripts,
-  ScrollRestoration
+  ScrollRestoration,
+  useLoaderData
 } from "@remix-run/react";
 
 import {
@@ -17,20 +18,18 @@ import {
 
 import createApp from "@shopify/app-bridge";
 import React, { useEffect, useState } from "react";
+import { json } from "@remix-run/node";
 
-// Load translations in the browser only
-let polarisTranslations = {};
-if (typeof window !== "undefined") {
-  const loadTranslations = async () => {
-    const module = await import("@shopify/polaris/locales/en.json", {
-      assert: { type: "json" }
-    });
-    polarisTranslations = module.default;
-  };
-  loadTranslations();
-}
+// ✅ Loader to pass ENV to client
+export const loader = () => {
+  return json({
+    ENV: {
+      SHOPIFY_API_KEY: process.env.SHOPIFY_API_KEY // <-- Replace with your actual key
+    }
+  });
+};
 
-// Load Polaris styles via CDN instead of importing the CSS
+// ✅ Polaris stylesheet from CDN
 export const links = () => [
   {
     rel: "stylesheet",
@@ -39,22 +38,37 @@ export const links = () => [
 ];
 
 export default function App() {
+  const { ENV } = useLoaderData(); 
   const [app, setApp] = useState(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const host = new URLSearchParams(window.location.search).get("host");
 
-      if (host) {
+      if (host && ENV?.SHOPIFY_API_KEY) {
         const appBridgeConfig = {
           host,
-          apiKey: process.env.SHOPIFY_APP_URL, 
+          apiKey: ENV.SHOPIFY_API_KEY, 
           forceRedirect: true
         };
 
         const appInstance = createApp(appBridgeConfig);
         setApp(appInstance);
       }
+    }
+  }, [ENV]);
+
+  // ✅ Polaris translations (safe client-side loading)
+  const [translations, setTranslations] = useState({});
+  useEffect(() => {
+    async function loadTranslations() {
+      const module = await import("@shopify/polaris/locales/en.json", {
+        assert: { type: "json" }
+      });
+      setTranslations(module.default);
+    }
+    if (typeof window !== "undefined") {
+      loadTranslations();
     }
   }, []);
 
@@ -65,7 +79,7 @@ export default function App() {
         <Links />
       </head>
       <body style={{ margin: 0 }}>
-        <PolarisProvider i18n={polarisTranslations}>
+        <PolarisProvider i18n={translations}>
           <Frame
             navigation={
               <Navigation location="/">
@@ -92,8 +106,16 @@ export default function App() {
             </Page>
           </Frame>
         </PolarisProvider>
+
         <ScrollRestoration />
         <Scripts />
+
+        {/* ✅ Inject ENV for browser access if needed */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(ENV)};`
+          }}
+        />
       </body>
     </html>
   );

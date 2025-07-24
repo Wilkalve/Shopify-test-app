@@ -1,7 +1,6 @@
 import { useLoaderData, Link } from '@remix-run/react';
-import { ClientOnly } from 'remix-utils'; // ✅ NEW import
+import ClientOnly from '../ClientOnly';
 import { useState } from 'react';
-// 🚫 Do NOT import StorefrontViewer here directly
 
 export async function loader({ request }) {
   const url = new URL(request.url);
@@ -33,7 +32,6 @@ export default function ViewerRoute() {
         View and interact with your uploaded model below. You can also copy a sharable link or return to the storefront.
       </p>
 
-      {/* ✅ Only render StorefrontViewer in the browser */}
       <ClientOnly fallback={<p style={{ textAlign: 'center' }}>⏳ Loading viewer...</p>}>
         {() => {
           const StorefrontViewer = require('../../storefront/StorefrontViewer').default;
