@@ -4,7 +4,7 @@
 name = "Novaprint 3D Printing"
 client_id = "47c3becbd20d6fb0c7387c1c11886854"
 handle = "3d-v2-printing"
-application_url = "https://funny-fruit-feelings-casting.trycloudflare.com"
+application_url = "https://treat-bother-auckland-neutral.trycloudflare.com"
 embedded = true
 
 [build]
@@ -27,7 +27,7 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://funny-fruit-feelings-casting.trycloudflare.com/auth/callback", "https://funny-fruit-feelings-casting.trycloudflare.com/auth/shopify/callback", "https://funny-fruit-feelings-casting.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://treat-bother-auckland-neutral.trycloudflare.com/auth/callback", "https://treat-bother-auckland-neutral.trycloudflare.com/auth/shopify/callback", "https://treat-bother-auckland-neutral.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false

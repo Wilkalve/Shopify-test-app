@@ -11,20 +11,18 @@ if (
 }
 
 /** @type {import('@remix-run/dev').AppConfig} */
-export default {
+// remix.config.js
+import { defineConfig } from '@remix-run/dev';
+
+export default defineConfig({
   ignoredRouteFiles: ["**/.*"],
   appDirectory: "app",
   serverBuildPath: "build/server/server.cjs",
   serverModuleFormat: "cjs",
   dev: { port: process.env.HMR_SERVER_PORT || 8002 },
-  future: {},
-};
-
-// remix.config.js
-module.exports = {
   serverDependenciesToBundle: ['@shopify/polaris'],
   future: {
     unstable_cssModules: true,
     unstable_cssSideEffectImports: true,
   },
-};
+});
