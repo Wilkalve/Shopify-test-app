@@ -1,15 +1,14 @@
 import { useLoaderData, Link } from '@remix-run/react';
-import StorefrontViewer from '../../storefront/StorefrontViewer';
+import { ClientOnly } from 'remix-utils'; // ✅ NEW import
 import { useState } from 'react';
+// 🚫 Do NOT import StorefrontViewer here directly
 
 export async function loader({ request }) {
   const url = new URL(request.url);
   const modelUrl = url.searchParams.get('modelUrl');
-
   if (!modelUrl) {
     throw new Response('Missing modelUrl', { status: 400 });
   }
-
   return { modelUrl };
 }
 
@@ -34,7 +33,13 @@ export default function ViewerRoute() {
         View and interact with your uploaded model below. You can also copy a sharable link or return to the storefront.
       </p>
 
-      <StorefrontViewer modelUrl={modelUrl} />
+      {/* ✅ Only render StorefrontViewer in the browser */}
+      <ClientOnly fallback={<p style={{ textAlign: 'center' }}>⏳ Loading viewer...</p>}>
+        {() => {
+          const StorefrontViewer = require('../../storefront/StorefrontViewer').default;
+          return <StorefrontViewer modelUrl={modelUrl} />;
+        }}
+      </ClientOnly>
 
       <div style={{ marginTop: '30px', textAlign: 'center' }}>
         <button
