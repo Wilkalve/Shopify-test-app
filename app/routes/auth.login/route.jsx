@@ -16,16 +16,29 @@ import {
   TextField,
 } from "@shopify/polaris";
 
+import { json } from "@remix-run/node";
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 
-
+// ✅ loader with dynamic CSP header
 export const loader = async ({ request }) => {
+  const url = new URL(request.url);
+  const shop = url.searchParams.get("shop") || "*.myshopify.com";
+
   const { login } = await import("../../shopify.server");
   const { loginErrorMessage } = await import("./error.server");
 
   const errors = loginErrorMessage(await login(request));
 
-  return { errors, polarisTranslations };
+  const headers = new Headers();
+  headers.set(
+    "Content-Security-Policy",
+    `frame-ancestors https://${shop} https://admin.shopify.com;`
+  );
+
+  return json(
+    { errors, polarisTranslations },
+    { headers }
+  );
 };
 
 export const action = async ({ request }) => {
@@ -36,12 +49,6 @@ export const action = async ({ request }) => {
 
   return { errors };
 };
-
- const headers = new Headers();
-  headers.set(
-    "Content-Security-Policy",
-    `frame-ancestors https://${shop} https://admin.shopify.com;`
-  );
 
 export default function Auth() {
   const loaderData = useLoaderData();
@@ -57,9 +64,7 @@ export default function Auth() {
       <Page>
         <Card>
           <Form method="post">
-            {/* ✅ Hidden field for host */}
             <input type="hidden" name="host" value={host || ""} />
-
             <FormLayout>
               <Text variant="headingMd" as="h2">
                 Log in

@@ -4,7 +4,7 @@
 name = "Novaprint 3D Printing"
 client_id = "47c3becbd20d6fb0c7387c1c11886854"
 handle = "3d-v2-printing"
-application_url = "https://cancellation-houston-tenant-statements.trycloudflare.com"
+application_url = "https://narrative-because-price-developmental.trycloudflare.com"
 embedded = true
 
 [build]
@@ -27,7 +27,7 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://cancellation-houston-tenant-statements.trycloudflare.com/auth/callback", "https://cancellation-houston-tenant-statements.trycloudflare.com/auth/shopify/callback", "https://cancellation-houston-tenant-statements.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://narrative-because-price-developmental.trycloudflare.com/auth/callback", "https://narrative-because-price-developmental.trycloudflare.com/auth/shopify/callback", "https://narrative-because-price-developmental.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
