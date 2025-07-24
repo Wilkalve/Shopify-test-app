@@ -4,7 +4,7 @@ import { useFetcher } from '@remix-run/react';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
-// --- Backend Action Handler ---
+
 export const action = async ({ request }) => {
   const formData = await request.formData();
   const file = formData.get('file');
@@ -18,10 +18,10 @@ export const action = async ({ request }) => {
   const safeName = `${timestamp}_${file.name.replace(/[^a-z0-9.\-_]/gi, '_')}`;
   const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
 
-  // Ensure uploads directory exists
+ 
   await mkdir(uploadsDir, { recursive: true });
 
-  // Save file to public/uploads
+  
   await writeFile(path.join(uploadsDir, safeName), buffer);
 
   return json({ url: `/uploads/${safeName}`, originalName: file.name });
